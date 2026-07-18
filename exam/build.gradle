@@ -1,0 +1,103 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.5.0'
+	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.openapi.generator' version '7.13.0'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	implementation 'org.mapstruct:mapstruct:1.6.3'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	implementation 'org.springframework.retry:spring-retry'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+}
+
+def generatedDir = layout.buildDirectory.dir("generated")
+def generatedClientDir = layout.buildDirectory.dir("generated-client")
+
+/*
+ * SERVER SIDE
+ * Genera interfaces para tus controllers
+ */
+openApiGenerate {
+	generatorName = "spring"
+
+	inputSpec = "$projectDir/src/main/resources/openapi/openapi.yaml"
+	outputDir = generatedDir.get().asFile.absolutePath
+
+	apiPackage = "com.example.api"
+	modelPackage = "com.example.model"
+
+	configOptions = [
+			interfaceOnly: "true",
+			useSpringBoot3: "true",
+			useTags: "true",
+			openApiNullable: "false",
+			skipDefaultInterface: "true",
+			performBeanValidation: "true"
+	]
+}
+
+/*
+ * CLIENT SIDE
+ * Genera cliente para consumir APIs externas
+ */
+tasks.register(
+		"generateExternalClient",
+		org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+) {
+
+	generatorName = "java"
+
+	inputSpec = "$projectDir/src/main/resources/openapi/client/api-pet-store.yaml"
+	outputDir = generatedClientDir.get().asFile.absolutePath
+
+	apiPackage = "com.example.external.api"
+	modelPackage = "com.example.external.model"
+
+	configOptions = [
+			library: "restclient",
+			dateLibrary: "java8",
+			useJakartaEe: "true",
+			openApiNullable: "false"
+	]
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir generatedDir.map { it.dir("src/main/java") }
+			srcDir generatedClientDir.map { it.dir("src/main/java") }
+		}
+	}
+}
+
+tasks.named("compileJava") {
+	dependsOn(
+			tasks.named("openApiGenerate"),
+			tasks.named("generateExternalClient")
+	)
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

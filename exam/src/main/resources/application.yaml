@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: exam
+logging:
+  level:
+    org.springframework.web: DEBUG
+    org.springframework.http.converter: DEBUG
+api:
+  pet-store:
+    base-url: "https://petstore.swagger.io/"
+    connect-timeout-ms: 2000
+    read-timeout-ms: 2000
