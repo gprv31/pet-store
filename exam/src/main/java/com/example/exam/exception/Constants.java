@@ -6,4 +6,5 @@ public class Constants {
     public static final String VALIDATION_ERROR = "VALIDATION_ERROR";
     public static final String INVALID_PARAMETER = "INVALID_PARAMETER";
     public static final String INTERNAL_ERROR = "INTERNAL_ERROR";
+    public static final String RESOURCE_NOT_FOUND = "RESOURCE_NOT_FOUND";
 }

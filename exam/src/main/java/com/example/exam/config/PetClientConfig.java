@@ -26,11 +26,13 @@ public class PetClientConfig {
         factory.setReadTimeout(readTimeout);
 
         RestClient restClient = RestClient.builder()
-                .baseUrl(baseUrl)
                 .requestFactory(factory)
                 .build();
 
-        return new ApiClient(restClient);
+        ApiClient apiClient = new ApiClient(restClient);
+        apiClient.setBasePath(baseUrl);
+
+        return apiClient;
     }
 
     @Bean

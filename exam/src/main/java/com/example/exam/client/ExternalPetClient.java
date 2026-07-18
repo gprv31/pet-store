@@ -22,8 +22,8 @@ public class ExternalPetClient {
     private final PetApi petApi;
     private final PetRecordMapper petRecordMapper;
 
-    @Retryable(retryFor = ExternalApiException.class, maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2)
-    )
+    @Retryable(retryFor = ExternalApiException.class, maxAttempts = 3,
+            backoff = @Backoff(delay = 1000, multiplier = 2))
     public PetRecord findPetById(Long id) {
         try {
             return petRecordMapper.toDomain(petApi.getPetById(id));
